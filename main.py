@@ -302,10 +302,10 @@ for e in tqdm.tqdm(range(NUM_EPISODES)):
 
         # Check if goal is reached
         if args.goal == 'episode':
-            if e == args.goal_value:
+            if e == args.goalvalue:
                 break
         elif args.goal == 'reward':
-            if np.mean(train_rewards[-100:]) > args.goal_value:
+            if np.mean(train_rewards[-100:]) > args.goalvalue:
                 break
 
 time_elapsed = time.time() - since
