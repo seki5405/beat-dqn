@@ -47,7 +47,7 @@ STATE_W = args.size
 STATE_H = args.size
 MEMSIZE = 50000
 LR = 1e-4
-NUM_EPISODES = 100000
+NUM_EPISODES = args.goalvalue if args.goal=='episode' else 100000
 OPTIMIZE_MODEL_STEP = 4
 TARGET_UPDATE=10000
 STEPS_BEFORE_TRAIN = 50000
@@ -285,7 +285,6 @@ for e in tqdm.tqdm(range(NUM_EPISODES)):
             print_n_logging(f'100 ep.mean score: {np.mean(train_rewards[-100:])}')
         if e % 10 == 9 and  t == 0:
             print_n_logging(f"10 ep.mean score : {np.mean(train_rewards[-10:])}")
-            # print("10 ep.mean score : {}".format(np.mean(train_rewards[-10:])))
         if t > 18000:
             break
 
