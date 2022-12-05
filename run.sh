@@ -8,10 +8,10 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=16
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=$USER@colorado.edu
+#SBATCH --mail-user=$USER@colorado.edu # You have to change $USER to your ID
 
 module purge
 module load anaconda
 conda activate csci7000-project #Your env
 
-python rc_breakout.py
+python main.py
