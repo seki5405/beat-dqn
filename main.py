@@ -35,10 +35,10 @@ if not os.path.exists(RUNTIME_IDENTIFIER):
 # Arguments setup
 # --model: model to use (default: DQN)
 parser = argparse.ArgumentParser(description='PyTorch Breakout')
-parser.add_argument('--model', type=str, default='DuelingDQN', help='model to use (default: DuelingDQN)')
+parser.add_argument('--model', type=str, default='dqn', help='model to use (default: DuelingDQN)')
 parser.add_argument('--size', type=int, default=96, help='size of the frame (default: 84)')
 parser.add_argument('--goal', type=str, default='episode', help='goal of the training (default: episode) (episode, reward')
-parser.add_argument('--goalvalue', type=int, default=1000, help='goal value of the training (default: 1000)')
+parser.add_argument('--goalvalue', type=int, default=10000, help='goal value of the training (default: 1000)')
 args = parser.parse_args()
 
 # Hyperparameters
