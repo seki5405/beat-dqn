@@ -279,13 +279,10 @@ for e in tqdm.tqdm(range(NUM_EPISODES)):
             BATCH_SIZE = 32
             optimize_model()
         if e % 100 == 99 and  t == 0:
-            # print('\neps_threshold:', eps_threshold)
-            print_n_logging(f'\neps_threshold: {eps_threshold}')
+            print_n_logging(f'\nEpisode {e} finished')
+            print_n_logging(f'eps_threshold: {eps_threshold}')
             print_n_logging(f'steps_done: {steps_done}')
-            # print('steps_done: ', steps_done)
-
-            # print("Mean score : {}".format(np.mean(train_rewards[-100:])))
-            print_n_logging(f'Mean score: {np.mean(train_rewards[-100:])}')
+            print_n_logging(f'100 ep.mean score: {np.mean(train_rewards[-100:])}')
         if e % 10 == 9 and  t == 0:
             print_n_logging(f"10 ep.mean score : {np.mean(train_rewards[-10:])}")
             # print("10 ep.mean score : {}".format(np.mean(train_rewards[-10:])))
