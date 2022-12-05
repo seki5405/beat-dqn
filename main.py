@@ -239,6 +239,8 @@ def print_n_logging(log):
 
 print("Start training")
 
+since = time.time()
+
 for e in tqdm.tqdm(range(NUM_EPISODES)):
     env.reset()
     lives = 5
@@ -306,6 +308,7 @@ for e in tqdm.tqdm(range(NUM_EPISODES)):
             if np.mean(train_rewards[-100:]) > args.goal_value:
                 break
 
-print("Training is done!")
+time_elapsed = time.time() - since
+print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
 plot_rewards(train_rewards)
 torch.save(policy_net.state_dict(), f"{RUNTIME_IDENTIFIER}/{RUNTIME_IDENTIFIER}_weight.pt")
