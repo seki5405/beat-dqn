@@ -19,6 +19,7 @@ import torch.nn.functional as F
 import torchvision.transforms as T
 
 from models import *
+from coatnet import CoAtNet
 
 # Runtime identifier based on the current time
 import time
@@ -137,7 +138,13 @@ elif args.model == 'duelingdqn':
     policy_net = DuelingDQN().to(device)
     target_net = DuelingDQN().to(device)
 elif args.model == 'coatdqn':
-    print('Comming soon!') #TBA in models.py
+    # coatnet0 configurations
+    num_blocks = [2, 2, 3, 5, 2]            # L
+    channels = [64, 96, 192, 384, 768]      # D
+    block_types=['C', 'C', 'T', 'T']        # 'C' for MBConv, 'T' for Transformer
+
+    policy_net = CoAtNet((96, 96), 4, num_blocks, channels, ACTION_NUM, block_types=block_types).to(device)
+    target_net = CoAtNet((96, 96), 4, num_blocks, channels, ACTION_NUM, block_types=block_types).to(device)
 else:
     print('Model not found')
     exit()
