@@ -186,7 +186,7 @@ def plot_rewards(rewards = train_rewards):
         means = np.concatenate((np.zeros(mean_size - 1), means))
         plt.plot(means)
     # Save as PNG
-    plt.savefig(f"{RUNTIME_IDENTIFIER}/reward_history_{RUNTIME_IDENTIFIER}.png")
+    plt.savefig(f"{RUNTIME_IDENTIFIER}/reward_history.png")
 
 # Initialization
 state_holder = StateHolder()
@@ -244,6 +244,15 @@ def print_n_logging(log):
     f.write('\n')
     f.close()
 
+def save_raw_data(e, steps_done, last_10_mean_reward):
+    f = open(f"{RUNTIME_IDENTIFIER}/raw_data.txt",'a')
+    f.write(f"{e},{steps_done},{last_10_mean_reward}")
+    f.write('\n')
+    f.close()
+
+def save_model(e, steps_done, last_10_mean_reward):
+    torch.save(policy_net.state_dict(), f"{RUNTIME_IDENTIFIER}/model_{e}_{steps_done}_{last_10_mean_reward}.pth")
+
 print("Start training")
 
 since = time.time()
@@ -263,7 +272,6 @@ for e in tqdm.tqdm(range(NUM_EPISODES)):
 
 
         _, reward, done, info = env.step(action.item())
-        # life = info['ale.lives']
         ep_rewards.append(reward)
         reward = torch.tensor([reward], device=device)
 
@@ -272,7 +280,6 @@ for e in tqdm.tqdm(range(NUM_EPISODES)):
 
         if not done:
             new_reward = reward
-            # next_state, lives = (None, life) if life < lives else (next_state, lives)
             memory.push(state.to('cpu'), action, next_state, new_reward)
             state = next_state
         else:
@@ -285,13 +292,18 @@ for e in tqdm.tqdm(range(NUM_EPISODES)):
         if (steps_done > STEPS_BEFORE_TRAIN) and steps_done % OPTIMIZE_MODEL_STEP == 0:
             BATCH_SIZE = 32
             optimize_model()
-        if e % 100 == 99 and  t == 0:
+        if e % 10000 == 0 and  t == 0 and e != 0:
+            save_model(e, steps_done, last_10_mean_reward)
+        if e % 100 == 0 and  t == 0:
             print_n_logging(f'\nEpisode {e} finished')
             print_n_logging(f'eps_threshold: {eps_threshold}')
             print_n_logging(f'steps_done: {steps_done}')
             print_n_logging(f'100 ep.mean score: {np.mean(train_rewards[-100:])}')
-        if e % 10 == 9 and  t == 0:
-            print_n_logging(f"10 ep.mean score : {np.mean(train_rewards[-10:])}")
+            plot_rewards(rewards = train_rewards)
+        if e % 10 == 0 and  t == 0:
+            last_10_mean_reward = np.mean(train_rewards[-10:])
+            save_raw_data(e, steps_done, last_10_mean_reward)
+            print_n_logging(f"10 ep.mean score : {last_10_mean_reward}")
         if t > 18000:
             break
 
@@ -314,4 +326,4 @@ for e in tqdm.tqdm(range(NUM_EPISODES)):
 time_elapsed = time.time() - since
 print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
 plot_rewards(train_rewards)
-torch.save(policy_net.state_dict(), f"{RUNTIME_IDENTIFIER}/{RUNTIME_IDENTIFIER}_weight.pt")
+save_model(e, steps_done, last_10_mean_reward)
