@@ -40,6 +40,7 @@ parser.add_argument('--model', type=str, default='dqn', help='model to use (defa
 parser.add_argument('--size', type=int, default=96, help='size of the frame (default: 84)')
 parser.add_argument('--goal', type=str, default='episode', help='goal of the training (default: episode) (episode, reward')
 parser.add_argument('--goalvalue', type=int, default=50000, help='goal value of the training (default: 1000)')
+parser.add_argument('--load', type=str, default=None, help='load model (default: None)')
 args = parser.parse_args()
 
 # Hyperparameters
@@ -149,6 +150,8 @@ else:
     print('Model not found')
     exit()
 
+if args.load is not None:
+    policy_net.load_state_dict(torch.load(args.load))
 target_net.load_state_dict(policy_net.state_dict())
 policy_net.train()
 target_net.eval()
