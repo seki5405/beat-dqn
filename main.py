@@ -58,7 +58,7 @@ EPS_END = 0.1
 EPS_DECAY = 1000000
 eps_threshold = EPS_START
 steps_done = 0
-BATCH_SIZE = 32
+BATCH_SIZE = 128
 GAMMA = 0.99
 mean_size = 100
 mean_step = 1
@@ -66,7 +66,8 @@ mean_step = 1
 print(f'model used : {args.model}')
 
 # Environment setup
-env = gym.make('BreakoutDeterministic-v4').unwrapped
+# env = gym.make('BreakoutDeterministic-v4').unwrapped
+env = gym.make('BreakoutDeterministic-v4', render_mode='rgb_array').unwrapped
 
 # Device setup
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -125,7 +126,8 @@ resize = T.Compose([T.ToPILImage(),
                     T.ToTensor()])
 
 def get_screen():
-  screen = env.render(mode='rgb_array')
+#   screen = env.render(mode='rgb_array')
+  screen = env.render()
   screen = np.dot(screen[...,:3], [0.299, 0.587, 0.114])
   screen = screen[30:195,:]
   screen = np.ascontiguousarray(screen, dtype=np.uint8).reshape(screen.shape[0], screen.shape[1], 1)
@@ -155,6 +157,16 @@ if args.load is not None:
 target_net.load_state_dict(policy_net.state_dict())
 policy_net.train()
 target_net.eval()
+
+# Multi GPU part
+NGPU = torch.cuda.device_count()
+print(f"Number of GPUs : {NGPU}")
+if NGPU > 1:
+    policy_net = torch.nn.DataParallel(policy_net, device_ids=list(range(NGPU)))
+    target_net = torch.nn.DataParallel(target_net, device_ids=list(range(NGPU)))
+torch.multiprocessing.set_start_method('spawn')
+policy_net.to(device)
+target_net.to(device)
 
 optimizer = optim.RMSprop(policy_net.parameters(), lr=LR)
 
@@ -274,7 +286,8 @@ for e in tqdm.tqdm(range(NUM_EPISODES)):
         steps_done += 1
 
 
-        _, reward, done, info = env.step(action.item())
+#         _, reward, done, info = env.step(action.item())
+        _, reward, done, _, info = env.step(action.item())
         ep_rewards.append(reward)
         reward = torch.tensor([reward], device=device)
 
