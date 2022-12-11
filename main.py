@@ -40,6 +40,7 @@ parser.add_argument('--model', type=str, default='dqn', help='model to use (defa
 parser.add_argument('--size', type=int, default=96, help='size of the frame (default: 84)')
 parser.add_argument('--goal', type=str, default='episode', help='goal of the training (default: episode) (episode, reward')
 parser.add_argument('--goalvalue', type=int, default=10000, help='goal value of the training (default: 1000)')
+parser.add_argument('--multigpu', type=str, default='False', help='use multiple gpu (default: False) (True, False)')
 args = parser.parse_args()
 
 # Hyperparameters
@@ -48,7 +49,7 @@ STATE_W = args.size
 STATE_H = args.size
 MEMSIZE = 50000
 LR = 1e-4
-NUM_EPISODES = args.goalvalue if args.goal=='episode' else 100000
+NUM_EPISODES = args.goalvalue if args.goal=='episode' else 50000
 OPTIMIZE_MODEL_STEP = 4
 TARGET_UPDATE=10000
 STEPS_BEFORE_TRAIN = 50000
@@ -154,6 +155,17 @@ if args.load is not None:
 target_net.load_state_dict(policy_net.state_dict())
 policy_net.train()
 target_net.eval()
+
+# Multi GPU
+if args.multigpu.lower() == 'true':
+    NGPU = torch.cuda.device_count()
+    print(f"Number of GPUs : {NGPU}")
+    if NGPU > 1:
+        policy_net = torch.nn.DataParallel(policy_net, device_ids=list(range(NGPU)))
+        target_net = torch.nn.DataParallel(target_net, device_ids=list(range(NGPU)))
+    torch.multiprocessing.set_start_method('spawn')
+    policy_net.to(device)
+    target_net.to(device)
 
 optimizer = optim.RMSprop(policy_net.parameters(), lr=LR)
 
