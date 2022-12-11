@@ -31,3 +31,4 @@ You can run the code on your local machine by
     python main.py # Run with default settings (model=dqn, size=96, goal=episode, goalvalue=1000)
     python main.py --model dqn(dqn, duelingdqn, coatdqn) # Specify the model
     python main.py --model dqn --goal episode(episode, reward) --goalvalue 1000(15 if the goal is reward) # Specify the goal
+    python main.py --multigpu True # Using multi GPU
